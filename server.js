@@ -1,13 +1,21 @@
 import ytdl from "@distube/ytdl-core";
 import cors from "cors";
 import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 import YTMusic from "ytmusic-api";
 
 const app = express();
 app.use(cors());
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const ytmusic = new YTMusic();
 await ytmusic.initialize();
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/index.html"));
+});
 
 // Search API
 app.get("/search", async (req, res) => {
