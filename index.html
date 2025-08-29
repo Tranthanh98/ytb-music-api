@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>YouTube Music Search</title>
+</head>
+<body>
+  <h1>Search and Play Music</h1>
+  <input type="text" id="query" placeholder="Enter song name..." />
+  <button onclick="search()">Search</button>
+
+  <ul id="results"></ul>
+
+  <audio id="player" controls autoplay></audio>
+
+  <script>
+    async function search() {
+      const q = document.getElementById("query").value;
+      const res = await fetch(`http://localhost:3000/search?q=${encodeURIComponent(q)}`);
+      const songs = await res.json();
+
+      console.log("Search results:", songs); // ✅ debug log
+
+      const list = document.getElementById("results");
+      list.innerHTML = "";
+
+      songs.forEach(song => {
+        const li = document.createElement("li");
+
+        // Safe check: nếu không có artist
+        const artists = song.artists?.map(a => a.name).join(", ") || "Unknown artist";
+
+        li.textContent = `${song.name} - ${artists}`;
+        li.style.cursor = "pointer";
+
+        li.onclick = async () => {
+          const playRes = await fetch(`http://localhost:3000/play/${song.videoId}`);
+          const { url } = await playRes.json();
+          console.log("Playing:", url); // ✅ debug log
+          document.getElementById("player").src = url;
+        };
+
+        list.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
